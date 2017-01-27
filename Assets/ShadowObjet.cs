@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class ShadowObjet : MonoBehaviour {
 
@@ -11,39 +12,25 @@ public class ShadowObjet : MonoBehaviour {
 	public float moveSpeed = 1.0f;
 	public float rotationSpeed = 1.0f;
 
-	private Vector3? _mousePosition = null;
-
-	void OnMouseDown() {
-		_mousePosition = Input.mousePosition;
-	}
-
 	void OnMouseDrag() {
-		if (_mousePosition != null && _mousePosition.GetValueOrDefault() != Input.mousePosition) {
-			var heading = Input.mousePosition - _mousePosition.GetValueOrDefault();
-			var distance = heading.magnitude;
-			var direction = heading / distance;
+		var mouse_x = Input.GetAxis ("Mouse X");
+		var mouse_y = Input.GetAxis ("Mouse Y");
 
-			Debug.Log (this.transform.rotation);
+		Debug.Log (mouse_x + " " + mouse_y);
+		if (mouse_x != 0 && mouse_y != 0) {
 			if (moveable && (Input.GetKey (KeyCode.LeftShift) || Input.GetKey (KeyCode.RightShift))) {
-				Debug.Log ("Move");
-				this.transform.position += heading * moveSpeed * Time.deltaTime;
+				this.transform.position += new Vector3 (mouse_x, mouse_y, 0) * moveSpeed * Time.deltaTime;
 			} else if (verticalMovement && (Input.GetKey (KeyCode.LeftControl) || Input.GetKey (KeyCode.RightControl))) {
-				Debug.Log ("VerticalRotation");
-				this.transform.Rotate (new Vector3 (0, 0, direction.x) * rotationSpeed * Time.deltaTime);
+				this.transform.Rotate(Camera.main.transform.up, -mouse_x * rotationSpeed * Time.deltaTime, Space.World);
 			} else if (horizontalMovement) {
-				Debug.Log ("HorizontalRotation");
-				this.transform.Rotate (new Vector3 (0, direction.y, 0) * rotationSpeed * Time.deltaTime);
+				this.transform.Rotate (Camera.main.transform.forward, -mouse_y * rotationSpeed * Time.deltaTime, Space.World);
 			}
 		}
-		_mousePosition = Input.mousePosition;
-	}
-
-	void OnMouseUp() {
-		_mousePosition = null;
 	}
 
 	// Use this for initialization
 	void Start () {
+			
 	}
 	
 	// Update is called once per frame
